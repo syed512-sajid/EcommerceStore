@@ -1,33 +1,20 @@
-# ==========================
-# 1️⃣ Build Stage
-# ==========================
+# 1️⃣ Build stage
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copy solution file if exists
-COPY *.sln ./
-
-# Copy project files
-COPY EcommerceStore/*.csproj ./EcommerceStore/
+# Copy project file(s)
+COPY *.csproj ./
 RUN dotnet restore
 
 # Copy rest of the code
 COPY . ./
 
-# Publish app to /app/out
-RUN dotnet publish "EcommerceStore/EcommerceStore.csproj" -c Release -o /app/out
+# Publish
+RUN dotnet publish -c Release -o out
 
-# ==========================
-# 2️⃣ Runtime Stage
-# ==========================
+# 2️⃣ Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
-
-# Copy published files from build stage
 COPY --from=build /app/out ./
-
-# Expose default port
 EXPOSE 8080
-
-# Entry point
 ENTRYPOINT ["dotnet", "EcommerceStore.dll"]
