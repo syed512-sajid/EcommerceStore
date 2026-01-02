@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <Content Remove="Views\Home\About.cshtml" />
     <Content Remove="wwwroot\js\orderManagement.js" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\js\orderManagement.js" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <None Include="Views\Home\About.cshtml" />
     <None Include="wwwroot\js\orderManagement.js" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
     <PackageReference Include="MailKit" Version="4.14.1" />
@@ -33,13 +33,11 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="App_Data\" />
     <Folder Include="Models\Request\" />
-    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
-
 </Project>
