@@ -2,19 +2,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
 
-# Copy project file(s)
+# Copy csproj and restore
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copy rest of the code
+# Copy everything else
 COPY . ./
 
-# Publish
-RUN dotnet publish -c Release -o out
+# Publish directly using .csproj file (NOT .sln)
+RUN dotnet publish EcommerceStore.csproj -c Release -o out
 
 # 2️⃣ Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
-COPY --from=build /app/out ./
-EXPOSE 8080
+COPY --from=build /app/out .
+
+# Set environment variable for Railway
+ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080}
+
 ENTRYPOINT ["dotnet", "EcommerceStore.dll"]
