@@ -12,7 +12,17 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Remove="App_Data\Ecommerce.db" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\js\orderManagement.js" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="App_Data\Ecommerce.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
   <ItemGroup>
@@ -36,7 +46,6 @@
   
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="App_Data\" />
     <Folder Include="Models\Request\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
