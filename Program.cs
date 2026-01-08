@@ -1,4 +1,4 @@
-﻿using EcommerceStore.Data;
+using EcommerceStore.Data;
 using EcommerceStore.Models;
 using EcommerceStore.Services;
 using Microsoft.AspNetCore.Identity;
@@ -7,11 +7,22 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // ===============================
-// DATABASE - SQLite (LOCAL)
+// DATABASE - SQLite (Railway + Local Safe)
 // ===============================
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Railway volume path (set in Railway Variables: DB_PATH=/data)
+var dbRoot = Environment.GetEnvironmentVariable("DB_PATH")
+             ?? builder.Environment.ContentRootPath;
+
+// Ensure directory exists
+Directory.CreateDirectory(dbRoot);
+
+// Full database file path
+var dbPath = Path.Combine(dbRoot, "Ecommerce.db");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlite($"Data Source={dbPath}")
+);
 
 // ===============================
 // IDENTITY
@@ -50,7 +61,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddControllersWithViews();
 
 // ===============================
-// EMAIL
+// EMAIL SERVICE
 // ===============================
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
@@ -60,28 +71,27 @@ builder.Services.AddHostedService<BackgroundEmailService>();
 var app = builder.Build();
 
 // ===============================
-// MIGRATION + ROLES + ADMIN SEED
+// APPLY MIGRATIONS + SEED ROLES + ADMIN
 // ===============================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
 
-    // Run migrations
+    // Apply pending migrations
     await db.Database.MigrateAsync();
 
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // ✅ CREATE ADMIN ROLE
+    // ✅ Create roles if they do not exist
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-    // ✅ CREATE CUSTOMER ROLE (IMPORTANT!)
     if (!await roleManager.RoleExistsAsync("Customer"))
         await roleManager.CreateAsync(new IdentityRole("Customer"));
 
-    // ✅ SEED ADMIN USER
+    // ✅ Seed admin user
     string adminEmail = "sajidabbas6024@gmail.com";
     string adminPassword = "Admin@6024";
 
