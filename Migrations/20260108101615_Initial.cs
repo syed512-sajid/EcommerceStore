@@ -16,7 +16,7 @@ namespace EcommerceStore.Migrations
                 name: "CustomerId",
                 table: "Orders",
                 type: "INTEGER",
-                nullable: false,
+                nullable: true,
                 defaultValue: 0);
 
             migrationBuilder.CreateTable(
@@ -76,7 +76,7 @@ namespace EcommerceStore.Migrations
                 table: "Orders");
 
             migrationBuilder.DropColumn(
-                name: "CustomerId",
+                
                 table: "Orders");
 
             migrationBuilder.AddForeignKey(
