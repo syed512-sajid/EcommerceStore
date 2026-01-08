@@ -12,12 +12,12 @@ namespace EcommerceStore.Migrations
                 name: "FK_OrderItems_Products_ProductId",
                 table: "OrderItems");
 
-            migrationBuilder.AddColumn<int>(
-                name: "CustomerId",
-                table: "Orders",
-                type: "INTEGER",
-                nullable: true,
-                defaultValue: 0);
+          migrationBuilder.AddColumn<int>(
+    name: "CustomerId",
+    table: "Orders",
+    type: "INTEGER",
+    nullable: true); // <-- make nullable
+
 
             migrationBuilder.CreateTable(
                 name: "Customers",
