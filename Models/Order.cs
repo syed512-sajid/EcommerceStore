@@ -44,7 +44,7 @@ namespace EcommerceStore.Models
         // Unique Tracking ID
         [Required]
         public string TrackingId { get; set; } = "";
-        public int CustomerId { get; set; }        // <--- add this
+        public int? CustomerId { get; set; }       // <--- add this
         public Customer Customer { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
