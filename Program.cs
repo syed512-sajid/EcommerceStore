@@ -13,14 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 // DATABASE - SQLite (Railway Volume Safe)
 // ===============================
 
-// Railway volume path (set in Railway Variables: DB_PATH=/data)
-var dbRoot = Environment.GetEnvironmentVariable("DB_PATH")
-             ?? builder.Environment.ContentRootPath;
+// Railway volume path (Environment Variable)
+var dbRoot = Environment.GetEnvironmentVariable("DB_PATH");
+
+// Fail fast if volume is not set
+if (string.IsNullOrEmpty(dbRoot))
+    throw new Exception("DB_PATH environment variable is not set. Please set it to /data on Railway.");
 
 // Ensure directory exists
 Directory.CreateDirectory(dbRoot);
 
-// Full database file path inside the volume
+// Full database file path inside the persistent volume
 var dbPath = Path.Combine(dbRoot, "Ecommerce.db");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
