@@ -8,7 +8,7 @@ namespace EcommerceStore.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // 1. Create Customers table if not exists
+            // 1. Create Customers table
             migrationBuilder.CreateTable(
                 name: "Customers",
                 columns: table => new
@@ -26,20 +26,20 @@ namespace EcommerceStore.Migrations
                     table.PrimaryKey("PK_Customers", x => x.Id);
                 });
 
-            // 2. Insert a default customer for old orders
+            // 2. Insert default customer
             migrationBuilder.InsertData(
                 table: "Customers",
                 columns: new[] { "Id", "Name", "Email" },
                 values: new object[] { 1, "Unknown Customer", "unknown@example.com" }
             );
 
-            // 3. Add CustomerId column as NOT NULL with default 1
+            // 3. Add CustomerId to Orders
             migrationBuilder.AddColumn<int>(
                 name: "CustomerId",
                 table: "Orders",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 1 // all existing orders point to default customer
+                defaultValue: 1
             );
 
             // 4. Create index
@@ -49,7 +49,7 @@ namespace EcommerceStore.Migrations
                 column: "CustomerId"
             );
 
-            // 5. Add FK constraint
+            // 5. Add FK
             migrationBuilder.AddForeignKey(
                 name: "FK_Orders_Customers_CustomerId",
                 table: "Orders",
