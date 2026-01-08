@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -12,17 +12,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="App_Data\Ecommerce.db" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\js\orderManagement.js" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Content Include="App_Data\Ecommerce.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   
   <ItemGroup>
@@ -31,22 +21,25 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.35">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="Models\Request\" />
     <Folder Include="wwwroot\images\" />

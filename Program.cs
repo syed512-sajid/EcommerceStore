@@ -1,4 +1,4 @@
-using EcommerceStore.Data;
+﻿using EcommerceStore.Data;
 using EcommerceStore.Models;
 using EcommerceStore.Services;
 using Microsoft.AspNetCore.Identity;
@@ -7,12 +7,9 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // ===============================
-// DATABASE - SQLite
+// DATABASE - SQLite (LOCAL)
 // ===============================
-var dbPath = "/data";
-if (!Directory.Exists(dbPath)) Directory.CreateDirectory(dbPath);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? "Data Source=/data/Ecommerce.db";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
@@ -48,45 +45,47 @@ builder.Services.AddSession(options =>
 });
 
 // ===============================
-// CONTROLLERS + VIEWS
+// MVC
 // ===============================
 builder.Services.AddControllersWithViews();
 
 // ===============================
-// EMAIL SETTINGS
+// EMAIL
 // ===============================
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
-// ===============================
-// EMAIL SERVICES (NEW)
-// ===============================
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHostedService<BackgroundEmailService>();
 
-// ===============================
-// BUILD APP
-// ===============================
 var app = builder.Build();
 
 // ===============================
-// APPLY MIGRATIONS AND SEED ADMIN USER
+// MIGRATION + ROLES + ADMIN SEED
 // ===============================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
+
+    // Run migrations
     await db.Database.MigrateAsync();
 
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
+    // ✅ CREATE ADMIN ROLE
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-    string adminEmail = "sajidabbas6024@gmail.com";
-    string adminPassword = "sajid@6024";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    // ✅ CREATE CUSTOMER ROLE (IMPORTANT!)
+    if (!await roleManager.RoleExistsAsync("Customer"))
+        await roleManager.CreateAsync(new IdentityRole("Customer"));
 
+    // ✅ SEED ADMIN USER
+    string adminEmail = "sajidabbas6024@gmail.com";
+    string adminPassword = "Admin@6024";
+
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
         adminUser = new IdentityUser
@@ -96,7 +95,8 @@ using (var scope = app.Services.CreateScope())
             EmailConfirmed = true
         };
         var result = await userManager.CreateAsync(adminUser, adminPassword);
-        if (result.Succeeded) await userManager.AddToRoleAsync(adminUser, "Admin");
+        if (result.Succeeded)
+            await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }
 
@@ -112,22 +112,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 // ===============================
-// DEFAULT ROUTE
+// ROUTES
 // ===============================
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
-
-// ===============================
-// RAILWAY PORT
-// ===============================
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://0.0.0.0:{port}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

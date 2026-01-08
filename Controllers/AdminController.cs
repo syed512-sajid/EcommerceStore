@@ -559,7 +559,7 @@
 //                {
 //                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 //                    client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
 //                    client.Send(message);
 //                    client.Disconnect(true);
 //                }
@@ -643,7 +643,7 @@
 //                {
 //                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 //                    client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
 //                    client.Send(message);
 //                    client.Disconnect(true);
 //                }
@@ -737,7 +737,7 @@
 //                {
 //                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 //                    client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+//                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
 //                    client.Send(message);
 //                    client.Disconnect(true);
 //                }
@@ -1267,6 +1267,7 @@ namespace EcommerceStore.Controllers
         <p>This is an automated notification from BAZARIO Store</p>
         <p>© {DateTime.Now.Year} BAZARIO. All rights reserved.</p>
     </div>
+    </div>
 </div>";
 
                 message.Body = new TextPart("html") { Text = body };
@@ -1275,7 +1276,7 @@ namespace EcommerceStore.Controllers
                 {
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
                     client.Send(message);
                     client.Disconnect(true);
                 }
@@ -1359,7 +1360,7 @@ namespace EcommerceStore.Controllers
                 {
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
                     client.Send(message);
                     client.Disconnect(true);
                 }
@@ -1442,7 +1443,7 @@ namespace EcommerceStore.Controllers
                 {
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
                     client.Send(message);
                     client.Disconnect(true);
                 }
@@ -1472,7 +1473,7 @@ namespace EcommerceStore.Controllers
 
                 if (order.Status != "Pending")
                 {
-                    return Json(new { success = false, message = "Only pending orders can be moved to processing." });
+                    return Json(new { success = false, message = "Orders can be moved to processing." });
                 }
 
                 order.Status = "Processing";
@@ -1594,7 +1595,7 @@ namespace EcommerceStore.Controllers
                 {
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     client.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "pyhs yayn vecz yakf");
+                    client.Authenticate("INFO.BAZARIO.STORE@gmail.com", "zihx tkid hisi svht");
                     client.Send(message);
                     client.Disconnect(true);
                 }

@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Email Test";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📧 Test Email Configuration</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            ✅ @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            ❌ @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="SendTestEmail" method="post">
+                        <div class="mb-3">
+                            <label for="recipientEmail" class="form-label">Recipient Email</label>
+                            <input type="email"
+                                   class="form-control"
+                                   id="recipientEmail"
+                                   name="recipientEmail"
+                                   value="sajidabbas6024@gmail.com"
+                                   required>
+                            <div class="form-text">Enter the email address where you want to send the test email</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-send"></i> Send Test Email
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-info mb-0">
+                        <h6>ℹ️ Email Configuration Status:</h6>
+                        <ul class="mb-0">
+                            <li>SMTP Host: smtp.gmail.com</li>
+                            <li>SMTP Port: 587</li>
+                            <li>From: INFO.BAZARIO.STORE@gmail.com</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-3">
+                <div class="card-body">
+                    <h6>🔍 Troubleshooting Steps:</h6>
+                    <ol>
+                        <li>Verify Gmail App Password is correct (16 characters)</li>
+                        <li>Check Railway environment variables are set</li>
+                        <li>Ensure 2FA is enabled on Gmail account</li>
+                        <li>Check Railway logs for detailed error messages</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

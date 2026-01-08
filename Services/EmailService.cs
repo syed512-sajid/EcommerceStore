@@ -1,15 +1,15 @@
 ﻿using EcommerceStore.Models;
+using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using MimeKit;
 
 namespace EcommerceStore.Services
 {
-    public interface IEmailService
-    {
-        Task SendOrderConfirmationAsync(Order order, List<CartItem> cart);
-        Task SendAdminNotificationAsync(Order order, List<CartItem> cart);
-    }
+    //public interface IEmailService
+    //{
+    //    Task SendOrderConfirmationAsync(Order order, List<CartItem> cart);
+    //    Task SendAdminNotificationAsync(Order order, List<CartItem> cart);
+    //}
 
     public class EmailService : IEmailService
     {
@@ -22,8 +22,8 @@ namespace EcommerceStore.Services
             _emailSettings = emailSettings.Value;
 
             // Load from environment variables (Railway)
-            var envUser = Environment.GetEnvironmentVariable("EMAIL_USER");
-            var envPass = Environment.GetEnvironmentVariable("EMAIL_PASS");
+            var envUser = Environment.GetEnvironmentVariable("info.bazario.store@gmail.com");
+            var envPass = Environment.GetEnvironmentVariable("zihx tkid hisi svht");
 
             if (!string.IsNullOrEmpty(envUser))
             {
@@ -94,6 +94,35 @@ namespace EcommerceStore.Services
                 _logger.LogError(ex, "❌ Failed to send admin email for Order #{OrderId}", order.Id);
             }
         }
+        public async Task SendOtpAsync(string email, string otp)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(_emailSettings.FromName, _emailSettings.FromEmail));
+                message.To.Add(MailboxAddress.Parse(email));
+                message.Subject = "🔐 Admin Login OTP - BAZARIO";
+
+                message.Body = new TextPart("html")
+                {
+                    Text = $@"
+            <div style='font-family:Arial; padding:20px;'>
+                <h2>Admin Login Verification</h2>
+                <p>Your OTP is:</p>
+                <h1 style='letter-spacing:4px;'>{otp}</h1>
+                <p>This OTP will expire in <b>5 minutes</b>.</p>
+                <p>If this was not you, please ignore this email.</p>
+            </div>"
+                };
+
+                await SendEmailAsync(message);
+                _logger.LogInformation("✅ OTP email sent to {Email}", email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Failed to send OTP email");
+            }
+        }
 
         private async Task SendEmailAsync(MimeMessage message)
         {
@@ -127,55 +156,74 @@ namespace EcommerceStore.Services
             foreach (var item in cart)
             {
                 itemsHtml += $@"
-                    <tr>
-                        <td style='padding: 10px; border: 1px solid #ddd;'>{item.ProductName}</td>
-                        <td style='padding: 10px; text-align: center; border: 1px solid #ddd;'>{item.Quantity}</td>
-                        <td style='padding: 10px; text-align: right; border: 1px solid #ddd;'>Rs. {item.Price:N0}</td>
-                    </tr>";
+        <tr style='border-bottom:1px solid #eee;'>
+            <td style='padding:10px;'>{item.ProductName}</td>
+            <td style='padding:10px; text-align:center;'>{item.Quantity}</td>
+            <td style='padding:10px; text-align:right;'>Rs. {item.Price:N0}</td>
+        </tr>";
             }
 
             return $@"
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
-                    <h2 style='color: #28a745;'>Order Confirmation</h2>
-                    <p>Hi <strong>{order.CustomerName}</strong>,</p>
-                    <p>Your order <strong>#{order.Id}</strong> has been received successfully!</p>
-                    
-                    <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
-                        <p style='margin: 5px 0;'><strong>Tracking ID:</strong> {order.TrackingId}</p>
-                        <p style='margin: 5px 0;'><strong>Order Date:</strong> {order.OrderDate:dd MMM yyyy HH:mm}</p>
-                        <p style='margin: 5px 0;'><strong>Status:</strong> {order.Status}</p>
-                    </div>
+<div style='font-family: Arial, sans-serif; max-width:600px; margin:0 auto; background:#f5f5f5; padding:20px;'>
 
-                    <h3>Order Items:</h3>
-                    <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
-                        <thead>
-                            <tr style='background: #007bff; color: white;'>
-                                <th style='padding: 10px; text-align: left;'>Product</th>
-                                <th style='padding: 10px; text-align: center;'>Qty</th>
-                                <th style='padding: 10px; text-align: right;'>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {itemsHtml}
-                        </tbody>
-                        <tfoot>
-                            <tr style='background: #f8f9fa; font-weight: bold;'>
-                                <td colspan='2' style='padding: 10px; border: 1px solid #ddd;'>Total</td>
-                                <td style='padding: 10px; text-align: right; border: 1px solid #ddd; color: #28a745;'>Rs. {order.TotalAmount:N0}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+    <div style='background:linear-gradient(135deg,#28a745,#218838); color:#fff; padding:30px; text-align:center; border-radius:10px 10px 0 0;'>
+        <h1 style='margin:0;'>✅ Order Confirmed</h1>
+        <p style='margin-top:10px;'>Thank you for shopping with BAZARIO</p>
+    </div>
 
-                    <h3>Delivery Information:</h3>
-                    <div style='background: #f8f9fa; padding: 15px; border-radius: 5px;'>
-                        <p style='margin: 5px 0;'><strong>Address:</strong> {order.Address}</p>
-                        {(!string.IsNullOrEmpty(order.Landmark) ? $"<p style='margin: 5px 0;'><strong>Landmark:</strong> {order.Landmark}</p>" : "")}
-                        <p style='margin: 5px 0;'><strong>Phone:</strong> {order.Phone}</p>
-                        <p style='margin: 5px 0;'><strong>Payment Method:</strong> {order.PaymentMethod}</p>
-                    </div>
+    <div style='background:#fff; padding:30px; border-radius:0 0 10px 10px;'>
+        <p style='font-size:16px;'>Hi <strong>{order.CustomerName}</strong>,</p>
 
-                    <p style='margin-top: 30px; color: #6c757d; font-size: 14px;'>Thank you for shopping with <strong>BAZARIO</strong>!</p>
-                </div>";
+        <p style='font-size:16px; line-height:1.6;'>
+            Your order <strong>#{order.Id}</strong> has been successfully placed.
+            Our team will start processing it shortly.
+        </p>
+
+        <div style='background:#e9f7ef; padding:20px; border-radius:8px; margin:20px 0; border-left:4px solid #28a745;'>
+            <p><strong>Order ID:</strong> #{order.Id}</p>
+            <p><strong>Order Date:</strong> {order.OrderDate:dd MMM yyyy, hh:mm tt}</p>
+            <p><strong>Payment Method:</strong> {order.PaymentMethod}</p>
+            <p><strong>Payment Method:</strong> {order.TrackingId}</p>
+        </div>
+
+        <h3 style='margin-top:30px;'>🛒 Order Details</h3>
+        <table style='width:100%; border-collapse:collapse;'>
+            <thead>
+                <tr style='background:#28a745; color:#fff;'>
+                    <th style='padding:10px; text-align:left;'>Product</th>
+                    <th style='padding:10px;'>Qty</th>
+                    <th style='padding:10px; text-align:right;'>Price</th>
+                </tr>
+            </thead>
+            <tbody>{itemsHtml}</tbody>
+            <tfoot>
+                <tr style='font-weight:bold;'>
+                    <td colspan='2' style='padding:10px;'>Total</td>
+                    <td style='padding:10px; text-align:right; color:#28a745; font-size:18px;'>Rs. {order.TotalAmount:N0}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style='background:#f8f9fa; padding:20px; border-radius:8px; margin:20px 0;'>
+            <h3>🚚 Delivery Address</h3>
+            <p>{order.Address}</p>
+            <p><strong>Phone:</strong> {order.Phone}</p>
+        </div>
+
+        <p style='margin-top:20px;'>
+            You will receive another email once your order is processed.
+        </p>
+
+        <p>
+            Regards,<br>
+            <strong>BAZARIO Team</strong>
+        </p>
+    </div>
+
+    <div style='text-align:center; margin-top:15px; font-size:12px; color:#888;'>
+        © {DateTime.Now.Year} BAZARIO Store
+    </div>
+</div>";
         }
 
         private string BuildAdminEmailBody(Order order, List<CartItem> cart)
@@ -184,76 +232,57 @@ namespace EcommerceStore.Services
             foreach (var item in cart)
             {
                 itemsHtml += $@"
-                    <tr>
-                        <td style='padding: 10px; border: 1px solid #ddd;'>{item.ProductName}</td>
-                        <td style='padding: 10px; text-align: center; border: 1px solid #ddd;'>{item.Quantity}</td>
-                        <td style='padding: 10px; text-align: right; border: 1px solid #ddd;'>Rs. {item.Price:N0}</td>
-                    </tr>";
+        <tr>
+            <td style='padding:8px;'>{item.ProductName}</td>
+            <td style='padding:8px; text-align:center;'>{item.Quantity}</td>
+            <td style='padding:8px; text-align:right;'>Rs. {item.Price:N0}</td>
+        </tr>";
             }
 
             return $@"
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
-                    <h2 style='color: #007bff;'>🔔 New Order Received</h2>
-                    
-                    <div style='background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;'>
-                        <p style='margin: 0; font-size: 16px;'><strong>Order #{order.Id}</strong> from <strong>{order.CustomerName}</strong></p>
-                        <p style='margin: 5px 0 0 0; color: #856404;'>Tracking: {order.TrackingId}</p>
-                    </div>
+<div style='font-family:Arial,sans-serif; max-width:600px; margin:0 auto; background:#f4f6f8; padding:20px;'>
 
-                    <h3>Customer Details:</h3>
-                    <table style='width: 100%; margin: 10px 0;'>
-                        <tr>
-                            <td style='padding: 5px;'><strong>Name:</strong></td>
-                            <td style='padding: 5px;'>{order.CustomerName}</td>
-                        </tr>
-                        <tr>
-                            <td style='padding: 5px;'><strong>Email:</strong></td>
-                            <td style='padding: 5px;'>{order.Email}</td>
-                        </tr>
-                        <tr>
-                            <td style='padding: 5px;'><strong>Phone:</strong></td>
-                            <td style='padding: 5px;'>{order.Phone}</td>
-                        </tr>
-                        <tr>
-                            <td style='padding: 5px;'><strong>Address:</strong></td>
-                            <td style='padding: 5px;'>{order.Address}</td>
-                        </tr>
-                        {(!string.IsNullOrEmpty(order.Landmark) ? $@"
-                        <tr>
-                            <td style='padding: 5px;'><strong>Landmark:</strong></td>
-                            <td style='padding: 5px;'>{order.Landmark}</td>
-                        </tr>" : "")}
-                        <tr>
-                            <td style='padding: 5px;'><strong>Payment:</strong></td>
-                            <td style='padding: 5px;'>{order.PaymentMethod}</td>
-                        </tr>
-                    </table>
+    <div style='background:linear-gradient(135deg,#6f42c1,#563d7c); color:#fff; padding:25px; border-radius:10px 10px 0 0;'>
+        <h2 style='margin:0;'>📢 New Order Alert</h2>
+        <p style='margin-top:8px;'>Order #{order.Id} received</p>
+    </div>
 
-                    <h3>Order Items:</h3>
-                    <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
-                        <thead>
-                            <tr style='background: #007bff; color: white;'>
-                                <th style='padding: 10px; text-align: left;'>Product</th>
-                                <th style='padding: 10px; text-align: center;'>Qty</th>
-                                <th style='padding: 10px; text-align: right;'>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {itemsHtml}
-                        </tbody>
-                        <tfoot>
-                            <tr style='background: #d4edda; font-weight: bold;'>
-                                <td colspan='2' style='padding: 10px; border: 1px solid #ddd;'>Total Amount</td>
-                                <td style='padding: 10px; text-align: right; border: 1px solid #ddd; color: #28a745;'>Rs. {order.TotalAmount:N0}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+    <div style='background:#fff; padding:25px; border-radius:0 0 10px 10px;'>
+        <div style='background:#fff3cd; padding:15px; border-left:4px solid #ffc107; border-radius:5px;'>
+            <strong>Customer:</strong> {order.CustomerName}<br>
+            <strong>Phone:</strong> {order.Phone}<br>
+            <strong>Email:</strong> {order.Email}
+        </div>
 
-                    <p style='margin-top: 30px; padding: 15px; background: #e7f3ff; border-radius: 5px;'>
-                        ⏰ <strong>Order Time:</strong> {order.OrderDate:dd MMM yyyy HH:mm}<br>
-                        📦 <strong>Status:</strong> {order.Status}
-                    </p>
-                </div>";
+        <h3 style='margin-top:25px;'>📦 Order Items</h3>
+        <table style='width:100%; border-collapse:collapse;'>
+            <thead>
+                <tr style='background:#6f42c1; color:#fff;'>
+                    <th style='padding:8px; text-align:left;'>Product</th>
+                    <th style='padding:8px;'>Qty</th>
+                    <th style='padding:8px; text-align:right;'>Price</th>
+                </tr>
+            </thead>
+            <tbody>{itemsHtml}</tbody>
+            <tfoot>
+                <tr style='font-weight:bold;'>
+                    <td colspan='2' style='padding:8px;'>Total</td>
+                    <td style='padding:8px; text-align:right; color:#28a745;'>Rs. {order.TotalAmount:N0}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style='background:#e7f3ff; padding:15px; border-radius:8px; margin-top:20px;'>
+            <p><strong>Order Date:</strong> {order.OrderDate:dd MMM yyyy hh:mm tt}</p>
+            <p><strong>Payment:</strong> {order.PaymentMethod}</p>
+            <p><strong>Delivery Address:</strong> {order.Address}</p>
+        </div>
+
+        <p style='margin-top:20px; font-weight:bold; color:#dc3545;'>
+            ⚠ Please process this order as soon as possible.
+        </p>
+    </div>
+</div>";
         }
     }
 }
