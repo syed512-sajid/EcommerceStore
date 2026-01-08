@@ -17,7 +17,7 @@ namespace EcommerceStore.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-        public DbSet<EmailOtp> EmailOtps { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
