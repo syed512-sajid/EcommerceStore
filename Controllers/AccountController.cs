@@ -35,32 +35,35 @@ namespace EcommerceStore.Controllers
         // =========================
         // LOGIN (EMAIL + PASSWORD)
         // =========================
-        [HttpPost]
-        public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
+       [HttpPost]
+public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
 
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                TempData["Error"] = "Invalid email or password";
-                return View();
-            }
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user == null)
+    {
+        TempData["Error"] = "Invalid email or password";
+        return View();
+    }
 
-            var passwordCheck = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-            if (!passwordCheck.Succeeded)
-            {
-                TempData["Error"] = "Invalid email or password";
-                return View();
-            }
+    var passwordCheck = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+    if (!passwordCheck.Succeeded)
+    {
+        TempData["Error"] = "Invalid email or password";
+        return View();
+    }
 
-            await _signInManager.SignInAsync(user, false);
+    // ✅ Directly sign in the user
+    await _signInManager.SignInAsync(user, false);
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
+    // Redirect to returnUrl if provided, else to Home/Index
+    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        return Redirect(returnUrl);
 
-            return RedirectToAction("Index", "Home");
-        }
+    return RedirectToAction("Index", "Home");
+}
+
 
         // =========================
         // LOGOUT
