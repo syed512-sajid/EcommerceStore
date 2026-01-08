@@ -12,18 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 // ===============================
 // DATABASE - SQLite (Railway Volume Safe)
 // ===============================
-
-// Railway volume path (Environment Variable)
 var dbRoot = Environment.GetEnvironmentVariable("DB_PATH");
 
-// Fail fast if volume is not set
 if (string.IsNullOrEmpty(dbRoot))
     throw new Exception("DB_PATH environment variable is not set. Please set it to /data on Railway.");
 
-// Ensure directory exists
 Directory.CreateDirectory(dbRoot);
 
-// Full database file path inside the persistent volume
 var dbPath = Path.Combine(dbRoot, "Ecommerce.db");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -31,7 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 // ===============================
-// IDENTITY
+// IDENTITY CONFIGURATION
 // ===============================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
@@ -77,28 +72,25 @@ builder.Services.AddHostedService<BackgroundEmailService>();
 var app = builder.Build();
 
 // ===============================
-// APPLY MIGRATIONS + SEED ROLES + ADMIN
+// APPLY MIGRATIONS AND SEED ROLES/ADMIN
 // ===============================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync(); // Apply migrations
 
-    // ✅ Apply pending migrations safely
-    // This will NOT delete existing data, only update schema
-    await db.Database.MigrateAsync();
-
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-    // Create roles if they don't exist
-    if (!await roleManager.RoleExistsAsync("Admin"))
-        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    string[] roles = new[] { "Admin", "Customer" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
 
-    if (!await roleManager.RoleExistsAsync("Customer"))
-        await roleManager.CreateAsync(new IdentityRole("Customer"));
-
-    // Seed admin user
+    // Seed admin
     string adminEmail = "sajidabbas6024@gmail.com";
     string adminPassword = "Admin@6024";
 
@@ -111,6 +103,7 @@ using (var scope = app.Services.CreateScope())
             Email = adminEmail,
             EmailConfirmed = true
         };
+
         var result = await userManager.CreateAsync(adminUser, adminPassword);
         if (result.Succeeded)
             await userManager.AddToRoleAsync(adminUser, "Admin");
