@@ -4,10 +4,13 @@ using EcommerceStore.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+// ===============================
+// BUILD APP
+// ===============================
 var builder = WebApplication.CreateBuilder(args);
 
 // ===============================
-// DATABASE - SQLite (Railway + Local Safe)
+// DATABASE - SQLite (Railway Volume Safe)
 // ===============================
 
 // Railway volume path (set in Railway Variables: DB_PATH=/data)
@@ -17,7 +20,7 @@ var dbRoot = Environment.GetEnvironmentVariable("DB_PATH")
 // Ensure directory exists
 Directory.CreateDirectory(dbRoot);
 
-// Full database file path
+// Full database file path inside the volume
 var dbPath = Path.Combine(dbRoot, "Ecommerce.db");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -78,20 +81,21 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
 
-    // Apply pending migrations
+    // ✅ Apply pending migrations safely
+    // This will NOT delete existing data, only update schema
     await db.Database.MigrateAsync();
 
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // ✅ Create roles if they do not exist
+    // Create roles if they don't exist
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
 
     if (!await roleManager.RoleExistsAsync("Customer"))
         await roleManager.CreateAsync(new IdentityRole("Customer"));
 
-    // ✅ Seed admin user
+    // Seed admin user
     string adminEmail = "sajidabbas6024@gmail.com";
     string adminPassword = "Admin@6024";
 
